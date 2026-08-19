@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Victor Moreira — Plano Financeiro | Grão</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root{
+    --navy:#1E2761;
+    --navy-deep:#141a49;
+    --gold:#C9A84C;
+    --gold-soft:#e4cd8a;
+    --bg:#0A0C1A;
+    --panel:#12162c;
+    --panel-2:#161b36;
+    --line:rgba(201,168,76,0.18);
+    --text:#EDEEF7;
+    --text-dim:#9BA0C0;
+    --green:#4caf82;
+    --amber:#d9a441;
+    --red:#c96a5a;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,.serif{font-family:'Playfair Display',serif;}
+  a{color:var(--gold);}
+
+  /* ---------- PASSWORD GATE ---------- */
+  #gate{
+    position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 50% 20%, #171d47 0%, #0A0C1A 70%);
+    padding:24px;
+  }
+  .gate-card{
+    width:100%;max-width:380px;background:var(--panel);border:1px solid var(--line);
+    border-radius:14px;padding:40px 32px;text-align:center;
+    box-shadow:0 30px 80px rgba(0,0,0,0.5);
+  }
+  .gate-mark{width:46px;height:46px;margin:0 auto 18px;border-radius:50%;
+    background:linear-gradient(135deg,var(--gold),#8a6f28);display:flex;align-items:center;justify-content:center;
+    font-family:'Playfair Display',serif;font-weight:700;color:#12162c;font-size:20px;}
+  .gate-card h2{font-size:20px;margin:0 0 6px;color:#fff;}
+  .gate-card p{color:var(--text-dim);font-size:13.5px;margin:0 0 24px;line-height:1.5;}
+  #gate input{
+    width:100%;padding:13px 14px;border-radius:8px;border:1px solid var(--line);
+    background:#0d1130;color:var(--text);font-size:15px;font-family:'DM Sans',sans-serif;text-align:center;
+    letter-spacing:1px;
+  }
+  #gate input:focus{outline:none;border-color:var(--gold);}
+  #gate button{
+    width:100%;margin-top:12px;padding:13px;border-radius:8px;border:none;
+    background:var(--gold);color:#1a1200;font-weight:700;font-size:14.5px;cursor:pointer;
+    font-family:'DM Sans',sans-serif;letter-spacing:.3px;transition:transform .15s ease, background .2s ease;
+  }
+  #gate button:hover{background:var(--gold-soft);}
+  #gate-error{color:var(--red);font-size:12.5px;margin-top:10px;min-height:16px;}
+
+  /* ---------- LAYOUT ---------- */
+  #content{display:none;max-width:900px;margin:0 auto;padding:0 20px 80px;}
+  .top-bar{
+    display:flex;align-items:center;justify-content:space-between;padding:26px 0 18px;
+    border-bottom:1px solid var(--line);margin-bottom:44px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-size:13px;letter-spacing:1.5px;color:var(--gold-soft);text-transform:uppercase;}
+  .brand .dot{width:5px;height:5px;border-radius:50%;background:var(--gold);}
+  .date{font-size:12.5px;color:var(--text-dim);}
+
+  .hero{padding:20px 0 46px;}
+  .eyebrow{color:var(--gold);font-size:12.5px;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:14px;}
+  .hero h1{font-size:38px;line-height:1.15;margin:0 0 18px;color:#fff;font-weight:700;}
+  .hero h1 span{color:var(--gold-soft);font-style:italic;font-weight:600;}
+  .hero p{font-size:16px;line-height:1.7;color:var(--text-dim);max-width:640px;}
+
+  .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:32px;}
+  .stat-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px 18px;}
+  .stat-card .label{font-size:11.5px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:8px;}
+  .stat-card .value{font-family:'Playfair Display',serif;font-size:24px;color:var(--gold-soft);font-weight:700;}
+  .stat-card .sub{font-size:12px;color:var(--text-dim);margin-top:6px;line-height:1.4;}
+
+  section{margin-top:64px;}
+  .section-head{display:flex;align-items:baseline;gap:12px;margin-bottom:26px;}
+  .section-head .num{font-family:'Playfair Display',serif;color:var(--gold);font-size:14px;font-weight:700;}
+  .section-head h2{font-size:24px;color:#fff;margin:0;font-weight:600;}
+  .section-head p.desc{color:var(--text-dim);font-size:14px;margin:8px 0 0;}
+
+  /* Debt cards */
+  .debt-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .debt-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;
+    cursor:pointer;transition:border-color .2s ease, transform .2s ease;
+  }
+  .debt-card:hover{border-color:var(--gold);transform:translateY(-2px);}
+  .debt-card.paid{opacity:.75;}
+  .debt-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+  .debt-name{font-weight:700;font-size:15.5px;color:#fff;}
+  .badge{font-size:10.5px;padding:4px 9px;border-radius:20px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;white-space:nowrap;}
+  .badge.green{background:rgba(76,175,130,.15);color:var(--green);}
+  .badge.amber{background:rgba(217,164,65,.15);color:var(--amber);}
+  .badge.gold{background:rgba(201,168,76,.18);color:var(--gold-soft);}
+  .debt-value{font-family:'Playfair Display',serif;font-size:19px;color:var(--gold-soft);margin-bottom:8px;}
+  .debt-desc{font-size:13px;color:var(--text-dim);line-height:1.55;max-height:0;overflow:hidden;transition:max-height .3s ease, margin-top .3s ease;}
+  .debt-card.open .debt-desc{max-height:200px;margin-top:6px;}
+  .debt-hint{font-size:11px;color:var(--text-dim);opacity:.6;margin-top:10px;}
+
+  /* Chart */
+  .chart-wrap{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:26px;display:flex;gap:32px;align-items:center;flex-wrap:wrap;}
+  .chart-canvas-box{width:200px;height:200px;flex-shrink:0;}
+  .legend{display:flex;flex-direction:column;gap:10px;flex:1;min-width:220px;}
+  .legend-item{display:flex;align-items:center;gap:10px;font-size:13.5px;}
+  .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .legend-item .amt{margin-left:auto;color:var(--text-dim);font-size:12.5px;}
+
+  /* Budget adjustments */
+  .adjust-list{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .adjust-row{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line);}
+  .adjust-row:last-child{border-bottom:none;}
+  .adjust-cat{font-size:14px;color:#fff;font-weight:500;}
+  .adjust-tag{font-size:11px;padding:4px 10px;border-radius:20px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;}
+  .adjust-tag.zero{background:rgba(201,106,90,.15);color:var(--red);}
+  .adjust-tag.reduce{background:rgba(217,164,65,.15);color:var(--amber);}
+  .adjust-note{font-size:12.5px;color:var(--text-dim);margin-top:16px;line-height:1.6;font-style:italic;}
+
+  /* Checklist */
+  .checklist-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+  .counter{font-size:13px;color:var(--gold-soft);font-weight:600;}
+  .checklist{display:flex;flex-direction:column;gap:10px;}
+  .check-item{
+    display:flex;align-items:flex-start;gap:14px;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:16px 18px;cursor:pointer;transition:border-color .2s ease, background .2s ease;
+  }
+  .check-item:hover{border-color:var(--gold);}
+  .check-item.done{background:var(--panel-2);}
+  .check-box{
+    width:20px;height:20px;border-radius:6px;border:1.5px solid var(--gold);flex-shrink:0;margin-top:1px;
+    display:flex;align-items:center;justify-content:center;transition:background .2s ease;
+  }
+  .check-box svg{opacity:0;transition:opacity .15s ease;width:12px;height:12px;}
+  .check-item.done .check-box{background:var(--gold);}
+  .check-item.done .check-box svg{opacity:1;}
+  .check-text{font-size:14.5px;line-height:1.5;color:var(--text);}
+  .check-item.done .check-text{color:var(--text-dim);text-decoration:line-through;}
+
+  /* Message */
+  .message-box{
+    background:linear-gradient(135deg,var(--panel-2),var(--panel));
+    border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:4px 12px 12px 4px;
+    padding:32px 30px;
+  }
+  .message-box p{font-size:15px;line-height:1.85;color:var(--text);margin:0 0 16px;}
+  .message-box p:last-child{margin-bottom:0;}
+  .sign{margin-top:22px;display:flex;align-items:center;gap:12px;}
+  .sign-mark{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#8a6f28);
+    display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:700;color:#1a1200;font-size:16px;flex-shrink:0;}
+  .sign-name{font-weight:700;color:#fff;font-size:14px;}
+  .sign-role{font-size:12px;color:var(--text-dim);}
+
+  footer{margin-top:70px;padding:30px 0;border-top:1px solid var(--line);text-align:center;}
+  footer .fbrand{font-family:'Playfair Display',serif;font-size:15px;color:var(--gold-soft);letter-spacing:.5px;margin-bottom:6px;}
+  footer p{font-size:11.5px;color:var(--text-dim);margin:2px 0;}
+
+  @media (max-width:640px){
+    .stat-row{grid-template-columns:1fr;}
+    .debt-grid{grid-template-columns:1fr;}
+    .hero h1{font-size:30px;}
+    .chart-wrap{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-mark">G</div>
+    <h2>Plano Financeiro</h2>
+    <p>Conteúdo confidencial preparado para Victor Moreira.<br>Digite sua senha de acesso para continuar.</p>
+    <input type="password" id="pw" placeholder="Senha de acesso" autocomplete="off">
+    <button onclick="checkPw()">Acessar meu plano</button>
+    <div id="gate-error"></div>
+  </div>
+</div>
+
+<div id="content">
+
+  <div class="top-bar">
+    <div class="brand"><span class="dot"></span> Grão · Grupo Primo</div>
+    <div class="date">Atualizado em 19 de agosto de 2026</div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow">Plano financeiro pessoal</div>
+    <h1>Victor, aqui está o <span>caminho</span> que construímos juntos.</h1>
+    <p>Depois das nossas duas conversas, organizamos sua renda real, sua estratégia para cada dívida e os próximos passos. Nada aqui é definitivo — é o mapa que vamos ajustando a cada reunião.</p>
+
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="label">Renda de trabalho</div>
+        <div class="value">R$ 12.600</div>
+        <div class="sub">por mês, considerando todos os seus clientes + apoio da sua mãe. Pode chegar a R$ 14.600 se o novo contrato fechar.</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">A receber do governo</div>
+        <div class="value">R$ 17.000</div>
+        <div class="sub">entrada picotada, sem data fixa — está sendo guardada à parte para quitar o João Vitor.</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Cartão Caixa</div>
+        <div class="value" style="color:var(--green)">Quitado ✓</div>
+        <div class="sub">resolvido. Falta só confirmar a limpeza no Serasa.</div>
+      </div>
+    </div>
+  </div>
+
+  <section id="dividas">
+    <div class="section-head">
+      <span class="num">01</span>
+      <div>
+        <h2>Sua estratégia por dívida</h2>
+        <p class="desc">Cada credor tem um plano diferente — pensado para caber no seu orçamento sem sufocar o mês.</p>
+      </div>
+    </div>
+
+    <div class="debt-grid">
+      <div class="debt-card" onclick="this.classList.toggle('open')">
+        <div class="debt-top">
+          <div class="debt-name">Tio Antônio</div>
+          <span class="badge green">Fluxo normal</span>
+        </div>
+        <div class="debt-value">R$ 19.320</div>
+        <div class="debt-desc">6 parcelas decrescentes de R$ 3.370 até R$ 3.070, todo dia 10, de setembro/26 a fevereiro/27. É o crédito com o juro mais baixo (7,1% no período) e o credor mais paciente — segue exatamente como já está combinado, sem renegociar.</div>
+        <div class="debt-hint">toque para ver detalhes</div>
+      </div>
+
+      <div class="debt-card" onclick="this.classList.toggle('open')">
+        <div class="debt-top">
+          <div class="debt-name">Felipe</div>
+          <span class="badge green">Fluxo normal</span>
+        </div>
+        <div class="debt-value">R$ 18.875</div>
+        <div class="debt-desc">6 parcelas de R$ 3.775 (a primeira já paga). Mantemos o pagamento normal — o custo de atrasar seria alto demais aqui.</div>
+        <div class="debt-hint">toque para ver detalhes</div>
+      </div>
+
+      <div class="debt-card open" onclick="this.classList.toggle('open')">
+        <div class="debt-top">
+          <div class="debt-name">João Vitor</div>
+          <span class="badge gold">Foco atual</span>
+        </div>
+        <div class="debt-value">R$ 13.937,43</div>
+        <div class="debt-desc">Em vez de seguir parcela a parcela, vamos negociar o pagamento do saldo <strong>de uma vez só</strong>, até o final de setembro ou outubro — usando o dinheiro do governo, que está sendo guardado especialmente para isso.</div>
+        <div class="debt-hint">toque para ver detalhes</div>
+      </div>
+
+      <div class="debt-card" onclick="this.classList.toggle('open')">
+        <div class="debt-top">
+          <div class="debt-name">Sua noiva</div>
+          <span class="badge amber">Pausada</span>
+        </div>
+        <div class="debt-value">R$ 2.381</div>
+        <div class="debt-desc">Sem urgência definida — mas é a próxima prioridade assim que sobrar caixa (novo contrato ou entrada do governo).</div>
+        <div class="debt-hint">toque para ver detalhes</div>
+      </div>
+
+      <div class="debt-card" onclick="this.classList.toggle('open')">
+        <div class="debt-top">
+          <div class="debt-name">Sua avó</div>
+          <span class="badge amber">Pausada</span>
+        </div>
+        <div class="debt-value">R$ 1.988</div>
+        <div class="debt-desc">Também sem urgência — fica logo depois da sua noiva na fila, quando houver folga no caixa.</div>
+        <div class="debt-hint">toque para ver detalhes</div>
+      </div>
+
+      <div class="debt-card paid" onclick="this.classList.toggle('open')">
+        <div class="debt-top">
+          <div class="debt-name">Cartão Caixa</div>
+          <span class="badge green">Quitado ✓</span>
+        </div>
+        <div class="debt-value" style="color:var(--green)">R$ 0</div>
+        <div class="debt-desc">Resolvido! Só falta confirmar no Serasa se a negativação já saiu — vale checar seu score pelo app.</div>
+        <div class="debt-hint">toque para ver detalhes</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="grafico">
+    <div class="section-head">
+      <span class="num">02</span>
+      <div>
+        <h2>Para onde vai cada real</h2>
+        <p class="desc">Distribuição do que ainda está em aberto entre os credores.</p>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-canvas-box"><canvas id="debtChart"></canvas></div>
+      <div class="legend">
+        <div class="legend-item"><span class="legend-dot" style="background:#C9A84C"></span> Tio Antônio <span class="amt">R$ 19.320</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:#8a6f28"></span> Felipe <span class="amt">R$ 18.875</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:#e4cd8a"></span> João Vitor <span class="amt">R$ 13.937</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:#4c5a9e"></span> Noiva <span class="amt">R$ 2.381</span></div>
+        <div class="legend-item"><span class="legend-dot" style="background:#3a4478"></span> Avó <span class="amt">R$ 1.988</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="estudo">
+    <div class="section-head">
+      <span class="num">03</span>
+      <div>
+        <h2>Opção em estudo <span style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--amber);background:rgba(217,164,65,.15);padding:4px 10px;border-radius:20px;vertical-align:middle;margin-left:8px;">viabilidade em análise</span></h2>
+        <p class="desc">Uma alternativa que ainda estamos avaliando com a parceria de crédito — nada aqui está fechado, é para você entender o caminho e decidirmos juntos.</p>
+      </div>
+    </div>
+
+    <div class="message-box" style="border-left-color:var(--amber);">
+      <p><strong>A ideia:</strong> em vez de encaixar as parcelas do tio e do Felipe (R$ 7.145/mês) dentro do orçamento apertando gastos, usar um empréstimo com garantia do seu veículo para quitar os dois de uma vez e trocar por <strong>uma única parcela bancária, bem menor</strong>.</p>
+      <p><strong>O que isso muda:</strong> hoje essas duas dívidas somam R$ 38.195 (saldo fixo, sem mais juros correndo se as parcelas seguirem em dia). Consolidando em um empréstimo mais longo, a parcela mensal cairia bastante — o que libera fôlego imediato para retomar antes o pagamento da sua noiva e da sua avó, e começar a reserva de emergência mais cedo.</p>
+      <p><strong>O custo real, com transparência:</strong> um prazo mais longo significa pagar mais juros no total ao longo do tempo — é a troca entre fôlego agora e custo total mais alto depois.</p>
+      <p><strong>Ponto de atenção:</strong> o veículo está no nome da sua avó — ela topa usá-lo como garantia, mas é o bem dela que fica no risco se as parcelas não forem honradas.</p>
+      <p style="margin-bottom:0;"><strong>Próximo passo:</strong> vou buscar a simulação real com nossa parceria de crédito (valor liberado, taxa e prazos disponíveis) antes de trazer isso como proposta formal. Só decidimos se seguimos por aqui depois de ver os números reais do banco.</p>
+    </div>
+  </section>
+
+  <section id="orcamento">
+    <div class="section-head">
+      <span class="num">04</span>
+      <div>
+        <h2>Ajustes temporários no orçamento</h2>
+        <p class="desc">Para abrir espaço no caixa enquanto o fluxo se estabiliza — nada aqui é para sempre.</p>
+      </div>
+    </div>
+    <div class="adjust-list">
+      <div class="adjust-row"><span class="adjust-cat">Lazer e restaurante</span><span class="adjust-tag zero">Zerado</span></div>
+      <div class="adjust-row"><span class="adjust-cat">Compras (eletrônicos/pessoais)</span><span class="adjust-tag zero">Zerado</span></div>
+      <div class="adjust-row"><span class="adjust-cat">Esportes (tênis)</span><span class="adjust-tag zero">Zerado</span></div>
+      <div class="adjust-row"><span class="adjust-cat">Alimentação</span><span class="adjust-tag reduce">Reduzido em ~R$ 200</span></div>
+    </div>
+    <p class="adjust-note">Assim que o João Vitor for quitado e o fluxo de caixa se estabilizar, esses valores voltam ao normal.</p>
+  </section>
+
+  <section id="checklist">
+    <div class="section-head">
+      <span class="num">05</span>
+      <div>
+        <h2>Seu checklist até a próxima conversa</h2>
+        <p class="desc">Marque conforme for resolvendo.</p>
+      </div>
+    </div>
+    <div class="checklist-head">
+      <span class="counter" id="counterText">0 de 6 concluídos</span>
+    </div>
+    <div class="checklist" id="checklistItems">
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1200" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="check-text">Conversar com o João Vitor sobre pagar o saldo de uma vez até final de setembro/outubro</div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1200" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="check-text">Consultar as duas opções de empréstimo no banco (com e sem garantia do veículo)</div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1200" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="check-text">Checar seu score no Serasa e confirmar se a negativação do cartão já saiu</div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1200" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="check-text">Seguir com a reunião de sexta-feira para tentar fechar o novo contrato de R$ 2.000</div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1200" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="check-text">Manter as parcelas do tio e do Felipe em dia, sem alterações</div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1200" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="check-text">Guardar qualquer valor recebido do governo — não usar para outra coisa</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="mensagem">
+    <div class="section-head">
+      <span class="num">06</span>
+      <div>
+        <h2>Um recado do seu planejador</h2>
+      </div>
+    </div>
+    <div class="message-box">
+      <p>Oi Victor! Como combinado, aqui está o passo a passo do que definimos na nossa conversa.</p>
+      <p>Primeiro, boa notícia: atualizei sua renda considerando todos os seus clientes e a ajuda da sua mãe — batemos R$ 12.600/mês, bem mais próximo da sua realidade do que a média que estávamos usando antes. Isso muda bastante o jogo a nosso favor.</p>
+      <p>Seu tio e o Felipe seguem exatamente como já está combinado com eles. O João Vitor é o ponto de atenção: vamos negociar para quitar o saldo dele de uma vez só, lá no final de setembro ou outubro, usando o dinheiro que está vindo do governo — por isso é importante guardar esse valor à parte. Sua noiva e sua avó ficam pausadas por enquanto, sem urgência.</p>
+      <p>Também combinamos alguns cortes temporários no orçamento, só até a gente estabilizar o fluxo. Qualquer dúvida, me chama no WhatsApp!</p>
+      <div class="sign">
+        <div class="sign-mark">M</div>
+        <div>
+          <div class="sign-name">Matheus de Sousa Melo</div>
+          <div class="sign-role">Planejador Financeiro · Grão | Grupo Primo</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="fbrand">Grão · Grupo Primo</div>
+    <p>Planejamento financeiro pessoal — Matheus de Sousa Melo</p>
+    <p>Este conteúdo é confidencial e de uso exclusivo de Victor Moreira.</p>
+  </footer>
+
+</div>
+
+<script>
+  function checkPw(){
+    const val = document.getElementById('pw').value.trim().toLowerCase();
+    const err = document.getElementById('gate-error');
+    if(val === 'victor2026'){
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('content').style.display = 'block';
+      initChart();
+    } else {
+      err.textContent = 'Senha incorreta. Tente novamente.';
+    }
+  }
+  document.getElementById('pw').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') checkPw();
+  });
+
+  function toggleCheck(el){
+    el.classList.toggle('done');
+    const total = document.querySelectorAll('.check-item').length;
+    const done = document.querySelectorAll('.check-item.done').length;
+    document.getElementById('counterText').textContent = done + ' de ' + total + ' concluídos';
+  }
+
+  function initChart(){
+    const ctx = document.getElementById('debtChart');
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Tio Antônio','Felipe','João Vitor','Noiva','Avó'],
+        datasets: [{
+          data: [19320, 18875, 13937, 2381, 1988],
+          backgroundColor: ['#C9A84C','#8a6f28','#e4cd8a','#4c5a9e','#3a4478'],
+          borderColor: '#0A0C1A',
+          borderWidth: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        cutout: '68%',
+        plugins: { legend: { display: false } }
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
